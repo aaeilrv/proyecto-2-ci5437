@@ -23,6 +23,7 @@
 #include <vector>
 #include <stdlib.h>
 #include <queue>
+using std::queue;
 
 #define DIM           36
 #define N             6
@@ -142,14 +143,12 @@ class state_t {
         queue<int> q;
 
         for (int i=0; i<DIM; i++) {
-            if ((color==1 && is_black_move(i) || color==-1 && is_white_move(i))) {
-                queue.push(i);
+            if ((color==1 && is_black_move(i)) || (color==-1 && is_white_move(i))) {
+                q.push(i);
             }
         }
 
-        return q
-
-
+        return q;
     }
 
     bool operator<(const state_t &s) const {

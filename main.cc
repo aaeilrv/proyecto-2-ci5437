@@ -6,8 +6,7 @@
 
 #include <iostream>
 #include <limits>
-#include "othello_cut.h" // won't work correctly until .h is fixed!
-#include "utils.h"
+#include "algorithms.h"
 
 #include <unordered_map>
 
@@ -75,7 +74,7 @@ int main(int argc, const char **argv) {
         cout << "Negascout";
     cout << (use_tt ? " w/ transposition table" : "") << endl;
 
-    // Run algorithm along PV (bacwards)
+    // Run algorithm along PV (backwards)
     cout << "Moving along PV:" << endl;
     for( int i = 0; i <= npv; ++i ) {
         //cout << pv[i];
@@ -89,13 +88,13 @@ int main(int argc, const char **argv) {
 
         try {
             if( algorithm == 1 ) {
-                //value = negamax(pv[i], 0, color, use_tt);
+                value = negamax(pv[i], 0, color, use_tt);
             } else if( algorithm == 2 ) {
-                //value = negamax(pv[i], 0, -200, 200, color, use_tt);
+                value = negamax_alpha_beta(pv[i], 0, -200, 200, color, use_tt);
             } else if( algorithm == 3 ) {
                 //value = scout(pv[i], 0, color, use_tt);
             } else if( algorithm == 4 ) {
-                //value = negascout(pv[i], 0, -200, 200, color, use_tt);
+                value = negascout(pv[i], 0, -200, 200, color, use_tt);
             }
         } catch( const bad_alloc &e ) {
             cout << "size TT[0]: size=" << TTable[0].size() << ", #buckets=" << TTable[0].bucket_count() << endl;
