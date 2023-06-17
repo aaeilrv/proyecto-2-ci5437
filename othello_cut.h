@@ -22,6 +22,7 @@
 #include <iostream>
 #include <vector>
 #include <stdlib.h>
+#include <queue>
 
 #define DIM           36
 #define N             6
@@ -132,6 +133,23 @@ class state_t {
             }
         }
         return valid_moves.empty() ? -1 : valid_moves[lrand48() % valid_moves.size()];
+    }
+
+    // return the posible moves of a player
+    queue<int> get_moves(int color) {
+        // color = 0 is black to move
+        // color = 1 is white to move
+        queue<int> q;
+
+        for (int i=0; i<DIM; i++) {
+            if ((color==1 && is_black_move(i) || color==-1 && is_white_move(i))) {
+                queue.push(i);
+            }
+        }
+
+        return q
+
+
     }
 
     bool operator<(const state_t &s) const {

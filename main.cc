@@ -36,14 +36,6 @@ class hash_table_t : public unordered_map<state_t, stored_info_t, hash_function_
 
 hash_table_t TTable[2];
 
-//int maxmin(state_t state, int depth, bool use_tt);
-//int minmax(state_t state, int depth, bool use_tt = false);
-//int maxmin(state_t state, int depth, bool use_tt = false);
-int negamax(state_t state, int depth, int color, bool use_tt = false);
-int negamax(state_t state, int depth, int alpha, int beta, int color, bool use_tt = false);
-int scout(state_t state, int depth, int color, bool use_tt = false);
-int negascout(state_t state, int depth, int alpha, int beta, int color, bool use_tt = false);
-
 int main(int argc, const char **argv) {
     state_t pv[128];
     int npv = 0;
