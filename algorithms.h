@@ -52,7 +52,7 @@ int negamax_alpha_beta(state_t state, int depth, int alpha, int beta, int color,
     return score;
 }
 
-int TEST(state_t state, int depth, int score, int color, bool cond) {
+/*int TEST(state_t state, int depth, int score, int color, bool cond) {
     if (depth == 0 || state.terminal()) {
         return (cond ? state.value() >= score : state.value() > score);
     }
@@ -64,12 +64,12 @@ int TEST(state_t state, int depth, int score, int color, bool cond) {
     // for each child of node
     for (int i = 0; i < n_moves; i++) {
         int child = move.front();
-        moves.pop();
+        move.pop();
 
-        /** no va a funcionar porque child es int y no state_t
-         * se podria usar chid = state.move(curr_player, i)
-         * 
-        */
+        // no va a funcionar porque child es int y no state_t
+        // se podria usar chid = state.move(curr_player, i)
+         
+        
 
         if (i == 0) {
             if (curr_player && TEST(child, depth--, score, -color, cond)) {
@@ -83,7 +83,7 @@ int TEST(state_t state, int depth, int score, int color, bool cond) {
     }
 
     return !(curr_player);
-}
+}*/
 
 /*int scout(state_t state, int depth, int color, bool use_tt) {
     if (depth == 0 || state.terminal()) return state.value();

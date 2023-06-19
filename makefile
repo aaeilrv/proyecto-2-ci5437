@@ -3,4 +3,3 @@ main:		main.cc othello_cut.h utils.h algorithms.h
 
 clean:
 		rm -f main core *~
-
