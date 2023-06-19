@@ -16,6 +16,7 @@ using std::queue;
 
 using namespace std;
 
+/**
 int negamax(state_t state, int depth, int color, bool use_tt) {
     if (depth == 0 || state.terminal()) return color * state.value();
 
@@ -29,7 +30,6 @@ int negamax(state_t state, int depth, int color, bool use_tt) {
         alpha = max(alpha, -negamax(state.move(curr_player, child), depth-1, -color, use_tt));
     }
     return alpha;
-
 }
 
 int negamax_alpha_beta(state_t state, int depth, int alpha, int beta, int color, bool use_tt) {
@@ -50,7 +50,7 @@ int negamax_alpha_beta(state_t state, int depth, int alpha, int beta, int color,
     }
 
     return score;
-}
+}*/
 
 /*int TEST(state_t state, int depth, int score, int color, bool cond) {
     if (depth == 0 || state.terminal()) {
@@ -113,7 +113,7 @@ int negamax_alpha_beta(state_t state, int depth, int alpha, int beta, int color,
     return score;
 }*/
 
-int negascout(state_t state, int depth, int alpha, int beta, int color, bool use_tt) {
+/*int negascout(state_t state, int depth, int alpha, int beta, int color, bool use_tt) {
     if (depth == 0 || state.terminal()) return color * state.value();
 
     queue<int> moves = state.get_moves(color);
@@ -142,4 +142,4 @@ int negascout(state_t state, int depth, int alpha, int beta, int color, bool use
     }
 
     return alpha;
-}
+}*/
