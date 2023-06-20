@@ -6,10 +6,15 @@
 
 #include <iostream>
 #include <limits>
-#include "algorithms.h"
-
 #include <unordered_map>
+#include <algorithm>
+#include <limits.h>
+#include <queue>
 
+#include "othello_cut.h"
+#include "utils.h"
+
+using std::queue;
 using namespace std;
 
 unsigned expanded = 0;
@@ -18,6 +23,7 @@ int tt_threshold = 32; // threshold to save entries in TT
 
 int negamax(state_t state, int depth, int color);
 int negamax_alpha_beta(state_t state, int depth, int alpha, int beta, int color);
+int scout(state_t state, int depth, int color);
 int negascout(state_t state, int depth, int alpha, int beta, int color);
 
 // Transposition table (it is not necessary to implement TT)
@@ -177,7 +183,7 @@ int negamax_alpha_beta(state_t state, int depth, int alpha, int beta, int color)
     return score;
 }
 
-/*int TEST(state_t state, int depth, int score, int color, bool cond) {
+int test(state_t state, int depth, int score, int color, bool cond) {
     if (depth == 0 || state.terminal()) {
         return (cond ? state.value() >= score : state.value() > score);
     }
@@ -186,24 +192,27 @@ int negamax_alpha_beta(state_t state, int depth, int alpha, int beta, int color)
     bool curr_player = color == 1;
     int n_moves = move.size();
 
+    if (move.size() == 0)
+        return test(state, depth, score, -color, cond);
+
     for (int i = 0; i < n_moves; i++) {
         int child = move.front();
         move.pop();
 
         if (i == 0) {
-            if (curr_player && TEST(state.move(curr_player, child), depth - 1, score, -color, cond)) {
+            if (curr_player && test(state.move(curr_player, child), depth - 1, score, -color, cond)) {
                 return true;
             }
 
-            if (color == 0 && TEST(state.move(curr_player, child), depth - 1, score, -color, cond)) {
+            if (!curr_player && !test(state.move(curr_player, child), depth - 1, score, -color, cond)) {
                 return false;
             }
         }
     }
     return !(curr_player);
-}*/
+}
 
-/*int scout(state_t state, int depth, int color) {
+int scout(state_t state, int depth, int color) {
     if (depth == 0 || state.terminal()) {
         expanded++;
         return state.value();
@@ -216,23 +225,28 @@ int negamax_alpha_beta(state_t state, int depth, int alpha, int beta, int color)
     score = 0;
     n_moves = moves.size();
 
+    if (moves.size() == 0) {
+        generated++;
+        return scout(state, depth, -color);
+    }
+
     for (int i = 0; i < n_moves; i++) {
         child = moves.front();
         moves.pop();
 
         if (i == 0) {
-            score = scout(state.move(curr_player, child), depth--, -color);
+            score = scout(state.move(curr_player, child), depth - 1, -color);
         } 
         else {
-            if (curr_player && !TEST) {
-                score = scout(state.move(curr_player, child), depth--, -color);
-            } else  if (color == 0 && !TEST) {
-                score = scout(state.move(curr_player, child), depth--, -color);   
+            if (curr_player && test(state.move(curr_player, child), depth - 1, -color, score, 0)) {
+                score = scout(state.move(curr_player, child), depth - 1, -color);
+            } else  if (color == 0 && !test(state.move(curr_player, child), depth - 1, -color, score, 1)) {
+                score = scout(state.move(curr_player, child), depth - 1, -color);   
             }
         }
     }
     return score;
-}*/
+}
 
 int negascout(state_t state, int depth, int alpha, int beta, int color) {
     if (depth == 0 || state.terminal()) {
