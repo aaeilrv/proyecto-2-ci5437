@@ -186,27 +186,20 @@ int negamax_alpha_beta(state_t state, int depth, int alpha, int beta, int color)
     bool curr_player = color == 1;
     int n_moves = move.size();
 
-    // for each child of node
     for (int i = 0; i < n_moves; i++) {
         int child = move.front();
         move.pop();
 
-        // no va a funcionar porque child es int y no state_t
-        // se podria usar chid = state.move(curr_player, i)
-         
-        
-
         if (i == 0) {
-            if (curr_player && TEST(child, depth--, score, -color, cond)) {
+            if (curr_player && TEST(state.move(curr_player, child), depth - 1, score, -color, cond)) {
                 return true;
             }
 
-            if (color == 0 && TEST(child, depth--, score, -color, cond)) {
+            if (color == 0 && TEST(state.move(curr_player, child), depth - 1, score, -color, cond)) {
                 return false;
             }
         }
     }
-
     return !(curr_player);
 }*/
 
@@ -257,20 +250,20 @@ int negascout(state_t state, int depth, int alpha, int beta, int color) {
         return -negascout(state, depth, -beta, -alpha, -color);
     }
 
-    for (int i =0; i < n_moves; i++) {
+    for (int i = 0; i < n_moves; i++) {
         generated++;
 
         child = moves.front();
         moves.pop();
 
         if (i == 0) {
-            score = -negascout(state.move(curr_player, child), depth-1, -beta, -alpha, -color);
+            score = -negascout(state.move(curr_player, child), depth - 1, -beta, -alpha, -color);
         } else {
             generated++;
-            score = -negascout(state.move(curr_player, child), depth-1, -alpha-1, -alpha, -color);
+            score = -negascout(state.move(curr_player, child), depth - 1, -alpha - 1, -alpha, -color);
             
             if (alpha < score && score < beta) {
-                score = -negascout(state.move(curr_player, child), depth-1, -beta, -score, -color);
+                score = -negascout(state.move(curr_player, child), depth - 1, -beta, -score, -color);
             }
         }
         alpha = max(alpha, score);
