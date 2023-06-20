@@ -135,7 +135,7 @@ int negamax(state_t state, int depth, int color) {
     int child, alpha = INT_MIN;
     bool curr_player = color == 1;
 
-    if (!move.size()) {
+    if (move.empty()) {
         generated++;
         alpha = -negamax(state, depth, -color);
     }
@@ -162,7 +162,7 @@ int negamax_alpha_beta(state_t state, int depth, int alpha, int beta, int color)
     int score = INT_MIN;
     bool curr_player = color == 1;
 
-    if (!move.size()) {
+    if (move.empty()) {
         generated++;
         score = -negamax_alpha_beta(state, depth, -beta, -alpha, -color);
     }
@@ -191,7 +191,7 @@ bool test(state_t state, int depth, int color, int score, bool condition) {
     bool curr_player = color == 1;
     int n_moves = move.size();
 
-    if (!move.size()) {
+    if (move.empty()) {
         if (curr_player && test(state, depth, -color, score, condition)) {
             return true;
         }
@@ -200,7 +200,7 @@ bool test(state_t state, int depth, int color, int score, bool condition) {
         }
     }
     
-    for (int i = 0; i < n_moves; i++) {
+    for (int i = 0; i < n_moves; ++i) {
         int child = move.front();
         move.pop();
 
@@ -230,7 +230,7 @@ int scout(state_t state, int depth, int color) {
     score = -200;
     n_move = move.size();
 
-    if (!move.size()) {
+    if (move.empty()) {
         generated++;
         return scout(state, depth, -color);
     }
@@ -268,7 +268,7 @@ int negascout(state_t state, int depth, int alpha, int beta, int color) {
 
     n_moves = moves.size();
 
-    if (!moves.size()) {
+    if (moves.empty()) {
         return -negascout(state, depth, -beta, -alpha, -color);
     }
 
