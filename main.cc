@@ -87,7 +87,6 @@ int main(int argc, const char **argv) {
     // Run algorithm along PV (backwards)
     cout << "Moving along PV:" << endl;
     for( int i = 0; i <= npv; ++i ) {
-        //cout << pv[i];
         int value = 0;
         TTable[0].clear();
         TTable[1].clear();
@@ -205,10 +204,12 @@ bool test(state_t state, int depth, int color, int score, bool condition) {
         int child = move.front();
         move.pop();
 
+        //if node is max && test
         if (curr_player && test(state.move(curr_player, child), depth - 1, -color, score, condition)) {
             return true;
         }
 
+        //if node is min && !test
         if (!curr_player && !test(state.move(curr_player, child), depth - 1, -color, score, condition)) {
             return false;
         }
