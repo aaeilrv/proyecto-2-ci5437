@@ -16,7 +16,7 @@ unsigned expanded = 0;
 unsigned generated = 0;
 int tt_threshold = 32; // threshold to save entries in TT
 
-int negamax(state_t state, int depth, int color, bool use_tt);
+int negamax(state_t state, int depth, int color);
 int negamax_alpha_beta(state_t state, int depth, int alpha, int beta, int color, bool use_tt);
 int negascout(state_t state, int depth, int alpha, int beta, int color, bool use_tt);
 
@@ -92,7 +92,7 @@ int main(int argc, const char **argv) {
 
         try {
             if( algorithm == 1 ) {
-                value = negamax(pv[i], 0, color, use_tt);
+                value = negamax(pv[i], i, color);
             } else if( algorithm == 2 ) {
                 value = negamax_alpha_beta(pv[i], 0, -200, 200, color, use_tt);
             } else if( algorithm == 3 ) {
@@ -120,21 +120,28 @@ int main(int argc, const char **argv) {
     return 0;
 }
 
-int negamax(state_t state, int depth, int color, bool use_tt) {
-    generated++;
-    if (depth == 0 || state.terminal()) return color * state.value();
+int negamax(state_t state, int depth, int color) {
+    if (depth == 0 || state.terminal()) {
+        expanded++;
+        return color * state.value();
+    }
 
     queue<int> move = state.get_moves(color);     
     int child, alpha = INT_MIN;
     bool curr_player = color == 1;
 
+    if (move.size() == 0) {
+        generated++;
+        alpha = -negamax(state, depth, -color);
+    }
+
     while (!move.empty()) {
+        generated++;
         child = move.front();
         move.pop();
-        alpha = max(alpha, -negamax(state.move(curr_player, child), depth-1, -color, use_tt));
+        alpha = max(alpha, -negamax(state.move(curr_player, child), depth-1, -color));
     }
     return alpha;
-    expanded++;
 }
 
 int negamax_alpha_beta(state_t state, int depth, int alpha, int beta, int color, bool use_tt) {
