@@ -138,8 +138,6 @@ class state_t {
 
     // return the posible moves of a player
     queue<int> get_moves(int color) {
-        // color = 0 is black to move
-        // color = 1 is white to move
         queue<int> q;
 
         for (int i=0; i<DIM; i++) {

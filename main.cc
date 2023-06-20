@@ -17,8 +17,8 @@ unsigned generated = 0;
 int tt_threshold = 32; // threshold to save entries in TT
 
 int negamax(state_t state, int depth, int color);
-int negamax_alpha_beta(state_t state, int depth, int alpha, int beta, int color, bool use_tt);
-int negascout(state_t state, int depth, int alpha, int beta, int color, bool use_tt);
+int negamax_alpha_beta(state_t state, int depth, int alpha, int beta, int color);
+int negascout(state_t state, int depth, int alpha, int beta, int color);
 
 // Transposition table (it is not necessary to implement TT)
 struct stored_info_t {
@@ -94,11 +94,11 @@ int main(int argc, const char **argv) {
             if( algorithm == 1 ) {
                 value = negamax(pv[i], i, color);
             } else if( algorithm == 2 ) {
-                value = negamax_alpha_beta(pv[i], 0, -200, 200, color, use_tt);
+                value = negamax_alpha_beta(pv[i], i, -200, 200, color);
             } else if( algorithm == 3 ) {
-                //value = scout(pv[i], 0, color, use_tt);
+                //value = scout(pv[i], i, color);
             } else if( algorithm == 4 ) {
-                value = negascout(pv[i], 0, -200, 200, color, use_tt);
+                value = negascout(pv[i], i, -200, 200, color);
             }
         } catch( const bad_alloc &e ) {
             cout << "size TT[0]: size=" << TTable[0].size() << ", #buckets=" << TTable[0].bucket_count() << endl;
@@ -121,7 +121,7 @@ int main(int argc, const char **argv) {
 }
 
 int negamax(state_t state, int depth, int color) {
-    if (depth == 0 || state.terminal()) {
+    if (!depth || state.terminal()) {
         expanded++;
         return color * state.value();
     }
@@ -130,38 +130,50 @@ int negamax(state_t state, int depth, int color) {
     int child, alpha = INT_MIN;
     bool curr_player = color == 1;
 
-    if (move.size() == 0) {
+    if (!move.size()) {
         generated++;
         alpha = -negamax(state, depth, -color);
     }
 
     while (!move.empty()) {
         generated++;
+
         child = move.front();
         move.pop();
-        alpha = max(alpha, -negamax(state.move(curr_player, child), depth-1, -color));
+
+        int value = -negamax(state.move(curr_player, child), depth-1, -color);
+        alpha = max(alpha, value);
     }
     return alpha;
 }
 
-int negamax_alpha_beta(state_t state, int depth, int alpha, int beta, int color, bool use_tt) {
-    generated++;
-    if (depth == 0 || state.terminal()) return color * state.value();
+int negamax_alpha_beta(state_t state, int depth, int alpha, int beta, int color) {
+    if (!depth || state.terminal()) {
+        expanded++;
+        return color * state.value();
+    }
 
     queue<int> move = state.get_moves(color);
     int score = INT_MIN;
     bool curr_player = color == 1;
 
+    if (!move.size()) {
+        generated++;
+        score = -negamax_alpha_beta(state, depth, -beta, -alpha, -color);
+    }
+
     while (!move.empty()) {
+        generated++;
+
         int child = move.front();
         move.pop();
-        int val = -negamax_alpha_beta(state.move(curr_player, child), depth-1, -alpha, -beta, -color, use_tt);
-        score = max(score, val);
-        alpha = max(alpha, val);
+
+        int value = -negamax_alpha_beta(state.move(curr_player, child), depth-1, -beta, -alpha, -color);
+        score = max(score, value);
+        alpha = max(alpha, value);
 
         if (alpha >= beta) break; 
     }
-    expanded++;
     return score;
 }
 
@@ -198,9 +210,11 @@ int negamax_alpha_beta(state_t state, int depth, int alpha, int beta, int color,
     return !(curr_player);
 }*/
 
-/*int scout(state_t state, int depth, int color, bool use_tt) {
-    generated++;
-    if (depth == 0 || state.terminal()) return state.value();
+/*int scout(state_t state, int depth, int color) {
+    if (depth == 0 || state.terminal()) {
+        expanded++;
+        return state.value();
+    }
     
     queue<int> moves = state.get_moves(color);
     bool curr_player = color == 1;
@@ -214,42 +228,49 @@ int negamax_alpha_beta(state_t state, int depth, int alpha, int beta, int color,
         moves.pop();
 
         if (i == 0) {
-            score = scout(state.move(curr_player, child), depth--, -color, use_tt);
+            score = scout(state.move(curr_player, child), depth--, -color);
         } 
         else {
             if (curr_player && !TEST) {
-                score = scout(state.move(curr_player, child), depth--, -color, use_tt);
+                score = scout(state.move(curr_player, child), depth--, -color);
             } else  if (color == 0 && !TEST) {
-                score = scout(state.move(curr_player, child), depth--, -color, use_tt);   
+                score = scout(state.move(curr_player, child), depth--, -color);   
             }
         }
     }
-    expanded++;
     return score;
 }*/
 
-int negascout(state_t state, int depth, int alpha, int beta, int color, bool use_tt) {
-    generated++;
-    if (depth == 0 || state.terminal()) return color * state.value();
+int negascout(state_t state, int depth, int alpha, int beta, int color) {
+    if (depth == 0 || state.terminal()) {
+        expanded++;
+        return color * state.value();
+    }
 
     queue<int> moves = state.get_moves(color);
     bool curr_player = color == 1;
     int score, n_moves, child;
 
-    score = 0;
     n_moves = moves.size();
 
-    for (int i =0; i<n_moves; i++) {
+    if (!moves.size()) {
+        return -negascout(state, depth, -beta, -alpha, -color);
+    }
+
+    for (int i =0; i < n_moves; i++) {
+        generated++;
+
         child = moves.front();
         moves.pop();
 
         if (i == 0) {
-            score = -negascout(state.move(curr_player, child), depth--, -beta, -alpha, -color, use_tt);
+            score = -negascout(state.move(curr_player, child), depth-1, -beta, -alpha, -color);
         } else {
-            score = -negascout(state.move(curr_player, child), depth--, -(alpha-1), -alpha, -color, use_tt);
+            generated++;
+            score = -negascout(state.move(curr_player, child), depth-1, -alpha-1, -alpha, -color);
             
             if (alpha < score && score < beta) {
-                score = -negascout(state.move(curr_player, child), depth--, -beta, -score, -color, use_tt);
+                score = -negascout(state.move(curr_player, child), depth-1, -beta, -score, -color);
             }
         }
         alpha = max(alpha, score);
@@ -257,6 +278,5 @@ int negascout(state_t state, int depth, int alpha, int beta, int color, bool use
         if (alpha >= beta) break;
     }
 
-    expanded++;
     return alpha;
 }
