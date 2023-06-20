@@ -87,7 +87,6 @@ int main(int argc, const char **argv) {
     // Run algorithm along PV (backwards)
     cout << "Moving along PV:" << endl;
     for( int i = 0; i <= npv; ++i ) {
-        //cout << pv[i];
         int value = 0;
         TTable[0].clear();
         TTable[1].clear();
@@ -102,7 +101,7 @@ int main(int argc, const char **argv) {
             } else if( algorithm == 2 ) {
                 value = negamax_alpha_beta(pv[i], i, -200, 200, color);
             } else if( algorithm == 3 ) {
-                //value = scout(pv[i], i, color);
+                value = scout(pv[i], i, color);
             } else if( algorithm == 4 ) {
                 value = negascout(pv[i], i, -200, 200, color);
             }
@@ -188,25 +187,22 @@ int test(state_t state, int depth, int score, int color, bool cond) {
         return (cond ? state.value() >= score : state.value() > score);
     }
 
-    queue<int> move = state.get_moves(color);
+    queue<int> moves = state.get_moves(color);
     bool curr_player = color == 1;
-    int n_moves = move.size();
 
-    if (move.size() == 0)
+    if (moves.size() == 0)
         return test(state, depth, score, -color, cond);
 
-    for (int i = 0; i < n_moves; i++) {
-        int child = move.front();
-        move.pop();
+    while (!moves.empty()) {
+        int child = moves.front();
+        moves.pop();
 
-        if (i == 0) {
-            if (curr_player && test(state.move(curr_player, child), depth - 1, score, -color, cond)) {
-                return true;
-            }
+        if (curr_player && test(state.move(curr_player, child), depth - 1, score, -color, cond)) {
+            return true;
+        }
 
-            if (!curr_player && !test(state.move(curr_player, child), depth - 1, score, -color, cond)) {
-                return false;
-            }
+        if (!curr_player && !test(state.move(curr_player, child), depth - 1, score, -color, cond)) {
+            return false;
         }
     }
     return !(curr_player);
@@ -233,15 +229,15 @@ int scout(state_t state, int depth, int color) {
     for (int i = 0; i < n_moves; i++) {
         child = moves.front();
         moves.pop();
+        generated++;
 
         if (i == 0) {
-            score = scout(state.move(curr_player, child), depth - 1, -color);
-        } 
-        else {
-            if (curr_player && test(state.move(curr_player, child), depth - 1, -color, score, 0)) {
-                score = scout(state.move(curr_player, child), depth - 1, -color);
-            } else  if (color == 0 && !test(state.move(curr_player, child), depth - 1, -color, score, 1)) {
-                score = scout(state.move(curr_player, child), depth - 1, -color);   
+            score = scout(state.move(curr_player, child), depth-1, -color);
+        } else {
+            if (curr_player && test(state.move(curr_player, child), depth-1, -color, score, 0)) {
+                score = scout(state.move(curr_player, child), depth-1, -color);
+            } else  if (!curr_player && !test(state.move(curr_player, child), depth-1, -color, score, 1)) {
+                score = scout(state.move(curr_player, child), depth-1, -color);   
             }
         }
     }
